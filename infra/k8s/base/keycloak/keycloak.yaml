@@ -1,9 +1,12 @@
 apiVersion: k8s.keycloak.org/v2beta1
 kind: Keycloak
 metadata:
-  name: example-kc
+  name: switchboard-keycloak
 spec:
   instances: 1
+  # env:
+  #   - name: KC_LOG_LEVEL
+  #     value: debug
   db:
     vendor: postgres
     host: postgres-db
