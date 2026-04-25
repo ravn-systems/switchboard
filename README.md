@@ -1,5 +1,11 @@
 # Switchboard
 
+## Taskfile
+Installation:
+```
+brew install go-task/tap/go-task
+```
+
 ## Keycloak Validations
 
 1. OIDC Discovery
