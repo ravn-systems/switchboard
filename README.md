@@ -1,9 +1,25 @@
 # Switchboard
 
-## Taskfile
+## Tool Installs
 Installation:
 ```
 brew install go-task/tap/go-task
+brew install fluxcd/tap/flux
+```
+
+## FluxCD Bootstrap Process:
+
+```
+helm install flux-operator oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator \
+  --namespace flux-system \
+  --create-namespace
+```
+
+```
+flux create secret githubapp flux-system \
+  --app-id=3505976 \
+  --app-installation-id=127138337 \
+  --app-private-key=./switchboard-ravnsystems.2026-04-25.private-key.pem
 ```
 
 ## Keycloak Validations

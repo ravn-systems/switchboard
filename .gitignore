@@ -1,1 +1,3 @@
 infra/local/kind/volumes/**
+
+**.pem
