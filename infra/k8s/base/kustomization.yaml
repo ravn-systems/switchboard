@@ -5,4 +5,4 @@ resources:
   - flux
   - namespaces
   - db
-  # - keycloak
+  - keycloak
