@@ -2,7 +2,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: podinfo
+  name: switchboard
   namespace: flux-system
 spec:
   interval: 30m0s
@@ -12,6 +12,6 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  targetNamespace: default
+  targetNamespace: switchboard
   timeout: 3m0s
   wait: true
