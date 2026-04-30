@@ -1,0 +1,3 @@
+creation_rules:
+  - path_regex: infra/.*\.enc\.yaml
+    pgp: 2D71AD789FF4BC5F770D7A49D1A3CF2C2DCA6B61

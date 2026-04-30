@@ -1,3 +1,7 @@
 infra/local/kind/volumes/**
 
 **.pem
+
+# Unencrypted secrets (encrypted versions use .enc.yaml suffix)
+infra/**/*secret*.yaml
+!infra/**/*.enc.yaml
