@@ -4,21 +4,78 @@ version: '3'
 
 vars:
   PROJECT: switchboard
+  FLUX_OPERATOR_VERSION: v0.48.0
+  SOPS_GPG_FINGERPRINT: 2D71AD789FF4BC5F770D7A49D1A3CF2C2DCA6B61
 
 tasks:
-  cluster-up:
+  bootstrap:
+    desc: "Full bootstrap: create cluster, install Flux operator, provision SOPS key, apply secrets, apply Flux config"
     cmds:
-      - kind create cluster --config=infra/local/kind/config.yaml
+      - task: cluster-up
+      - task: flux-operator-install
+      - task: sops-provision
+      - task: secrets-apply
+      - task: flux-bootstrap
 
-  cluster-down:
+  cluster-up:
+    desc: Create the kind cluster (skips if already exists)
+    cmds:
+      - kind create cluster --config=infra/local/kind/config.yaml || true
+
+  down:
+    desc: Delete the kind cluster
     cmds:
       - kind delete cluster --name "{{.PROJECT}}"
 
+  cluster-reset:
+    desc: Tear down and fully recreate the cluster
+    cmds:
+      - task: cluster-down
+      - task: bootstrap
+
+  flux-operator-install:
+    desc: Install the Flux operator CRDs and controller
+    cmds:
+      - kubectl apply --server-side -f https://github.com/controlplaneio-fluxcd/flux-operator/releases/download/{{.FLUX_OPERATOR_VERSION}}/install.yaml
+      - kubectl -n flux-system wait --for=condition=available --timeout=120s deployment/flux-operator
+
+  sops-provision:
+    desc: Export GPG private key into the cluster as the sops-gpg secret
+    cmds:
+      - |
+        if [ -z "{{.SOPS_GPG_FINGERPRINT}}" ]; then
+          echo "ERROR: SOPS_GPG_FINGERPRINT is not set"
+          exit 1
+        fi
+        if ! gpg --list-secret-keys "{{.SOPS_GPG_FINGERPRINT}}" > /dev/null 2>&1; then
+          echo "ERROR: GPG key {{.SOPS_GPG_FINGERPRINT}} not found in local keyring"
+          exit 1
+        fi
+        gpg --export-secret-keys --armor "{{.SOPS_GPG_FINGERPRINT}}" | \
+          kubectl create secret generic sops-gpg \
+            --from-file=sops.asc=/dev/stdin \
+            -n flux-system \
+            --dry-run=client -o yaml | \
+          kubectl apply -f -
+
+  secrets-apply:
+    desc: Decrypt and apply bootstrap secrets (GitHub App auth) using local GPG key
+    cmds:
+      - sops -d infra/clusters/local/github-secret.enc.yaml | kubectl apply -f -
+
+  flux-bootstrap:
+    desc: Apply FluxInstance and wait for Flux to become ready; Flux then reconciles the rest of clusters/local/ itself
+    cmds:
+      - kubectl apply --server-side -f infra/clusters/local/flux-instance.yaml
+      - kubectl -n flux-system wait --for=condition=Ready fluxinstance/flux --timeout=300s
+
   kustomize-template:
+    desc: Preview rendered infra manifests without applying
     cmds:
       - kubectl kustomize infra/k8s/overlays/local
 
   kustomize-apply:
+    desc: Directly apply infra manifests (bypasses Flux, for debugging)
     cmds:
       - kubectl apply -k infra/k8s/overlays/local
 
@@ -28,7 +85,7 @@ tasks:
       - kubectl port-forward svc/switchboard-keycloak-service 8080:8080
 
   keycloak-validate:
-    cmds: 
+    cmds:
       - |
         curl -s -X POST http://localhost:8080/realms/switchboard/protocol/openid-connect/token \
         -H "Content-Type: application/x-www-form-urlencoded" \

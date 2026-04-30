@@ -24,5 +24,5 @@ spec:
     provider: github
     url: "https://github.com/ravn-systems/switchboard.git"
     ref: "refs/heads/main"
-    path: "infra/k8s/base/flux"
+    path: "infra/clusters/local"
     pullSecret: "flux-system"
