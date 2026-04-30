@@ -30,8 +30,8 @@
 
 ## 5. Verification
 
-- [ ] 5.1 Run `task bootstrap` from scratch (no existing kind cluster) and confirm the cluster comes up, Flux is installed, and `kubectl get fluxinstance -n flux-system` shows Ready
-- [ ] 5.2 Confirm `kubectl get kustomization -n flux-system` shows the infra Kustomization reconciling `infra/k8s/overlays/local`
-- [ ] 5.3 Confirm the GitHub secret is decrypted and applied correctly by Flux
-- [ ] 5.4 Run `task bootstrap` a second time on the running cluster and confirm it exits without error (idempotency)
-- [ ] 5.5 Run `task cluster-reset` and confirm full teardown and clean recreation
+- [x] 5.1 Run `task bootstrap` from scratch (no existing kind cluster) and confirm the cluster comes up, Flux is installed, and `kubectl get fluxinstance -n flux-system` shows Ready
+- [x] 5.2 Confirm `kubectl get kustomization -n flux-system` shows the infra Kustomization reconciling `infra/k8s/overlays/local`
+- [x] 5.3 Confirm the GitHub secret is decrypted and applied correctly by Flux
+- [x] 5.4 Run `task bootstrap` a second time on the running cluster and confirm it exits without error (idempotency)
+- [x] 5.5 Run `task cluster-reset` and confirm full teardown and clean recreation
