@@ -7,3 +7,5 @@ nodes:
     extraMounts:
       - hostPath: ./infra/local/kind/volumes/postgres
         containerPath: /data
+      - hostPath: ./infra/local/kind/volumes/grafana
+        containerPath: /var/lib/grafana

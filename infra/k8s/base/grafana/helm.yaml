@@ -2,11 +2,11 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
-  name: grafana
+  name: grafana-community
   namespace: switchboard
 spec:
   interval: 1m
-  url: https://grafana.github.io/helm-charts
+  url: https://grafana-community.github.io/helm-charts
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -17,11 +17,14 @@ spec:
   interval: 10m
   chart:
     spec:
-      chart: <name|path>
-      version: '4.0.x'
+      chart: grafana
+      version: '12.3.0'
       sourceRef:
         kind: HelmRepository
-        name: grafana
+        name: grafana-community
         namespace: switchboard
       interval: 10m
   values:
+    persistence:
+      enabled: true
+      volumeName: grafana-volume

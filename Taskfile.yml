@@ -69,6 +69,11 @@ tasks:
       - kubectl apply --server-side -f infra/clusters/local/flux-instance.yaml
       - kubectl -n flux-system wait --for=condition=Ready fluxinstance/flux --timeout=300s
 
+  grafana-portforward:
+    cmds:
+      - kubectl config set-context --current --namespace={{.PROJECT}}
+      - kubectl port-forward svc/grafana 80:3000
+
   kustomize-template:
     desc: Preview rendered infra manifests without applying
     cmds:
