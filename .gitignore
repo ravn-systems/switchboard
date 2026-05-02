@@ -5,3 +5,4 @@ infra/local/kind/volumes/**
 # Unencrypted secrets (encrypted versions use .enc.yaml suffix)
 infra/**/*secret*.yaml
 !infra/**/*.enc.yaml
+!infra/k8s/base/grafana/admin-secret-template.yaml

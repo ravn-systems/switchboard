@@ -46,25 +46,15 @@ curl -s -X POST http://localhost:8080/realms/switchboard/protocol/openid-connect
 
 ### Grafana install
 
-```
-helm repo add grafana-community https://grafana-community.github.io/helm-charts
-helm install my-grafana grafana-community/grafana --namespace switchboard
-```
-Until I get this in the helm values
-
 Oauth2 Setup:
-1. Port Forward grafana to port 3000
+1. Port forward grafana and keycloak
 ```
-k port-forward svc/my-grafana 3000:80
+task portforward-all
 ```
-2. Port forward keycloak to port 8080
-```
-task keycloak-portforward
-```
-3. Configure the oauth integration in Grafana UI
+2. Configure the oauth integration in Grafana UI
 - Generic Oauth
   - ClientID: switchboard
-  - Scopes: openid, email, profile, offline_access, roles
+  - Scopes: openid,email,profile,offline_access,roles
   - Auth URL: http://localhost:8080/realms/switchboard/protocol/openid-connect/auth (needs to be the port forwarded port)
   - Token URL (this traffic stays within kind cluster): http://switchboard-keycloak-service:8080/realms/switchboard/protocol/openid-connect/token
   - API URL: http://switchboard-keycloak-service:8080/realms/switchboard/protocol/openid-connect/userinfo

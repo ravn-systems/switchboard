@@ -71,8 +71,7 @@ tasks:
 
   grafana-portforward:
     cmds:
-      - kubectl config set-context --current --namespace={{.PROJECT}}
-      - kubectl port-forward svc/grafana 80:3000
+      - kubectl port-forward svc/grafana 3000:80
 
   kustomize-template:
     desc: Preview rendered infra manifests without applying
@@ -86,7 +85,6 @@ tasks:
 
   keycloak-portforward:
     cmds:
-      - kubectl config set-context --current --namespace={{.PROJECT}}
       - kubectl port-forward svc/switchboard-keycloak-service 8080:8080
 
   keycloak-validate:
@@ -103,3 +101,10 @@ tasks:
         | awk '{ pad=length($0)%4; if(pad==2) print $0"=="; else if(pad==3) print $0"="; else print $0 }' \
         | base64 -d \
         | jq .
+
+  portforward-all:
+    desc: Forward Grafana (3000) and Keycloak (8080) ports simultaneously
+    deps:
+      - kubectl config set-context --current --namespace={{.PROJECT}}
+      - task: grafana-portforward
+      - task: keycloak-portforward
