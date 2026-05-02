@@ -69,6 +69,10 @@ tasks:
       - kubectl apply --server-side -f infra/clusters/local/flux-instance.yaml
       - kubectl -n flux-system wait --for=condition=Ready fluxinstance/flux --timeout=300s
 
+  grafana-portforward:
+    cmds:
+      - kubectl port-forward svc/grafana 3000:80
+
   kustomize-template:
     desc: Preview rendered infra manifests without applying
     cmds:
@@ -81,7 +85,6 @@ tasks:
 
   keycloak-portforward:
     cmds:
-      - kubectl config set-context --current --namespace={{.PROJECT}}
       - kubectl port-forward svc/switchboard-keycloak-service 8080:8080
 
   keycloak-validate:
@@ -98,3 +101,10 @@ tasks:
         | awk '{ pad=length($0)%4; if(pad==2) print $0"=="; else if(pad==3) print $0"="; else print $0 }' \
         | base64 -d \
         | jq .
+
+  portforward-all:
+    desc: Forward Grafana (3000) and Keycloak (8080) ports simultaneously
+    deps:
+      - kubectl config set-context --current --namespace={{.PROJECT}}
+      - task: grafana-portforward
+      - task: keycloak-portforward

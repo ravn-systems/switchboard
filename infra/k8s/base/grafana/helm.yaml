@@ -2,11 +2,11 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
-  name: grafana
+  name: grafana-community
   namespace: switchboard
 spec:
   interval: 1m
-  url: https://grafana.github.io/helm-charts
+  url: https://grafana-community.github.io/helm-charts
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -17,11 +17,36 @@ spec:
   interval: 10m
   chart:
     spec:
-      chart: <name|path>
-      version: '4.0.x'
+      chart: grafana
+      version: '12.3.0'
       sourceRef:
         kind: HelmRepository
-        name: grafana
+        name: grafana-community
         namespace: switchboard
       interval: 10m
   values:
+    persistence:
+      enabled: true
+      volumeName: grafana-volume
+    admin:
+      existingSecret: grafana-admin-secret
+      userKey: admin-user
+      passwordKey: admin-password
+    grafana.ini:
+      auth.generic_oauth:
+        enabled: true
+        name: Keycloak-OAuth
+        allow_sign_up: true
+        client_id: grafana-oauth
+        scopes: openid email profile offline_access roles
+        email_attribute_path: email
+        login_attribute_path: username
+        name_attribute_path: full_name
+        auth_url: http://localhost:8080/realms/switchboard/protocol/openid-connect/auth
+        token_url: http://switchboard-keycloak-service:8080/realms/switchboard/protocol/openid-connect/token
+        api_url: http://switchboard-keycloak-service:8080/realms/switchboard/protocol/openid-connect/userinfo
+        use_refresh_token: true
+        allow_assign_grafana_admin: true
+        groups_attribute_path: groups
+        role_attribute_path: contains(groups[*], 'GrafanaAdmin') && 'GrafanaAdmin' || 'Viewer'
+        use_pkce: true
